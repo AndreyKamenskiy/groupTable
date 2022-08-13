@@ -1,4 +1,10 @@
-arguments string, error message
-notKeyFirst -key val,Unknown argument: notKeyFirst.%nUse -help key for uses instructions.
--key -key1 val val,Unknown argument: val.%nUse -help key for uses instructions.
--KEY val -asd -search -keY val,Doubled command: -keY.%n
+prefix,arguments string,available commands, command, value, error message
+    ,notKeyFirst -key val,,,,Unknown argument: notKeyFirst.%nUse -help key for uses instructions.
+    ,-key -key1 val val,,,,Unknown argument: val.%nUse -help key for uses instructions.
+    ,-KEY val -asd -search -keY val,,,,Doubled command: -keY.
+    ,-key val - key1 -key2,,,,Empty command found.
+--,-key,,,,Unknown argument: -key.%nUse --help key for uses instructions.
+--,-- key1 val,,,,Empty command found.
+--,--key1 val-- key2,,,,Unknown argument: key2.%nUse --help key for uses instructions.
+,-key1 -key2,-key1 -key3,,,Unknown command: -key2.%nUse -help key for uses instructions.
+--,-key1 -key3,-key1 -key3,,,Unknown argument: -key1.%nUse --help key for uses instructions.

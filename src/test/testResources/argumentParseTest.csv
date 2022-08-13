@@ -1,5 +1,10 @@
-arguments string, command, value
--loadFile filename,-loADFile,filename
--key val -key1 val2,-key1,val2
--key val -key1 val2,-KEY1,val2
--key val -keY1 val2,-KEY1,val2
+prefix,arguments string,available commands, command, value
+,-loadFile filename,,-loADFile,filename
+,-key val -key1 val2,,-key1,val2
+,-key val -key1 val2,,-KEY1,val2
+,-key val -keY1 val2,,-KEY1,val2
+--, --heLp val,,--HelP,val
+,-key1 val -key2,-key1 -key2 -key3,-key1,val
+,-k v -d -v,,-d,
+--,---key1,,---key1,
+*,*key1,,*key1,
