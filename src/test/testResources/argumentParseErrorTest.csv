@@ -1,0 +1,4 @@
+arguments string, error message
+notKeyFirst -key val,Unknown argument: notKeyFirst.%nUse -help key for uses instructions.
+-key -key1 val val,Unknown argument: val.%nUse -help key for uses instructions.
+-KEY val -asd -search -keY val,Doubled command: -keY.%n

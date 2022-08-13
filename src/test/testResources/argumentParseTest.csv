@@ -1,0 +1,5 @@
+arguments string, command, value
+-loadFile filename,-loADFile,filename
+-key val -key1 val2,-key1,val2
+-key val -key1 val2,-KEY1,val2
+-key val -keY1 val2,-KEY1,val2

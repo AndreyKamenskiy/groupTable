@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 public class ArgumentsProcessor {
     private static final String UNKNOWN_ARGUMENT = "Unknown argument: %s.%nUse %shelp key for uses instructions.";
     private static final String UNKNOWN_COMMAND = "Unknown command: %s.%nUse %shelp key for uses instructions.";
+    private static final String DOUBLED_COMMAND = "Doubled command: %s.%n";
     private static final String EMPTY_COMMAND_LIST = "ArgumentsProcessor error: Empty all commands list.";
     private static final String COMMAND_ABSENT = "ArgumentsProcessor error: command %s is absent.";
     private static final String COMMAND_VALUE_ABSENT = "ArgumentsProcessor error: %s command's value is absent.";
@@ -33,7 +34,10 @@ public class ArgumentsProcessor {
     public void parseArguments() throws IllegalArgumentException {
         for (int i = 0; i < args.length; ++i) {
             if (args[i].startsWith(commandPrefix)) {
-                String command = args[i];
+                String command = args[i].toLowerCase();
+                if (keys.containsKey(command)) {
+                    throw new IllegalArgumentException(String.format(DOUBLED_COMMAND, args[i]));
+                }
                 if (hasCommandList && !availableCommands.contains(command)) {
                     throw new IllegalArgumentException(String.format(UNKNOWN_COMMAND, args[i], commandPrefix));
                 }
@@ -57,22 +61,23 @@ public class ArgumentsProcessor {
     }
 
     public boolean hasCommandWithValue(String command) {
-        return keys.containsKey(command) && keys.get(command) != null;
+        String lowCaseCommand = command.toLowerCase();
+        return keys.containsKey(lowCaseCommand) && keys.get(lowCaseCommand) != null;
     }
 
     public boolean hasCommand(String command) {
-        return keys.containsKey(command);
+        return keys.containsKey(command.toLowerCase());
     }
 
     public String getValue(String command) throws IllegalArgumentException {
-        if (hasCommandWithValue(command)) {
+        if (!hasCommandWithValue(command)) {
             if (!hasCommand(command)) {
                 throw new IllegalArgumentException(String.format(COMMAND_ABSENT, command));
             } else {
                 throw new IllegalArgumentException(String.format(COMMAND_VALUE_ABSENT, command));
             }
         }
-        return keys.get(command);
+        return keys.get(command.toLowerCase());
     }
 
 }
