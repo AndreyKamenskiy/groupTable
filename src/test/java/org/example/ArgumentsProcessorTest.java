@@ -22,10 +22,10 @@ class ArgumentsProcessorTest {
         }
         processor.parseArguments();
         if (command != null) {
-            assert (processor.hasCommand(command));
+            assert processor.hasCommand(command);
             if (value != null && !value.isEmpty()) {
-                assert (processor.hasCommandWithValue(command));
-                assert (processor.getValue(command).equals(value));
+                assert processor.hasCommandWithValue(command);
+                assert processor.getValue(command).equals(value);
             } else {
                 assertFalse(processor.hasCommandWithValue(command));
             }
