@@ -9,7 +9,6 @@ public class Cell {
         STRING,
         EMPTY
     }
-
     private CellType type;
 
     private double doubleValue;
@@ -40,35 +39,18 @@ public class Cell {
     }
 
     public String getStringValue() {
+        if (type != CellType.STRING) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
         return stringValue;
     }
 
     public boolean changeTypeTo(CellType toType) {
         boolean res = false;
         switch (type) {
-            case EMPTY -> {
-                switch (toType) {
-                    case DOUBLE -> {
-                        type = CellType.DOUBLE;
-                        doubleValue = 0;
-                        res = true;
-                    }
-                    case STRING -> {
-                        type = CellType.STRING;
-                        stringValue = "";
-                        res = true;
-                    }
-                    case EMPTY -> res = true;
-                }
-            }
             case DOUBLE -> {
-                switch (toType) {
-                    case DOUBLE -> res = true;
-                    case STRING -> {
-                        type = CellType.STRING;
-                        stringValue = String.valueOf(doubleValue);
-                        res = true;
-                    }
+                if (toType == CellType.STRING) {
+                    type = CellType.STRING;
+                    stringValue = String.valueOf(doubleValue);
+                    res = true;
                 }
             }
             case STRING -> {
@@ -80,10 +62,17 @@ public class Cell {
                     } catch (NumberFormatException ex) {
                         // не получилось преобразовать
                     }
+                } else if (toType == CellType.EMPTY && stringValue.isEmpty()) {
+                    type = CellType.EMPTY;
+                    res = true;
                 }
             }
         }
         return res;
+    }
+
+    public boolean isEmpty() {
+        return type == CellType.EMPTY || (type == CellType.STRING && stringValue.isEmpty());
     }
 
 }
