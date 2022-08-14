@@ -74,4 +74,16 @@ class TableTest {
         assert t.getHeight() == 51;
     }
 
+    @Test
+    void exceptionsTest() {
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().setRow(-1, new Row()));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getRow(-100));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(-100, 0));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(100, -50));        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(-100, 0));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () ->
+                new Table().setCell(100, -50, new Cell(52)));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () ->
+                new Table().setCell(-90, 5, new Cell(532)));
+    }
+
 }
