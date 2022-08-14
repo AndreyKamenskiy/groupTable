@@ -9,6 +9,7 @@ public class Cell {
         STRING,
         EMPTY
     }
+
     private CellType type;
 
     private double doubleValue;
@@ -73,6 +74,16 @@ public class Cell {
 
     public boolean isEmpty() {
         return type == CellType.EMPTY || (type == CellType.STRING && stringValue.isEmpty());
+    }
+
+    @Override
+    public String toString() {
+        //todo: add test
+        return switch (type) {
+            case DOUBLE -> String.valueOf(doubleValue);
+            case STRING -> stringValue;
+            case EMPTY -> "";
+        };
     }
 
 }
