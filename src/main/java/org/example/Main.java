@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.example.table.Table;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class Main {
+
+    //todo: add tests for null arguments passed to every method;
 
     private static final String HELP_COMMAND = "-help";
     private static final String INPUT_FILE_COMMAND = "-inputFile";
@@ -30,54 +33,37 @@ public class Main {
             showHelp();
             return;
         }
-
-
-
-
-        // ParseCommandLine();
-        // cl
-        // TableLoader loader = new ExcellTableLoader(fileName);
-        //Table table = loader.loadTable();
-        //TableProcessor processor = new TableProcessor();
-        //processor.groupTable(table);
-        //TableSaver saver = new ExcellTableSaver();
-
-
-        /*String templateFile = "src/test/testResources/simpleTable.xlsx";
-
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(new File(templateFile));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+        if (!argsProcessor.hasCommandWithValue(INPUT_FILE_COMMAND)) {
+            System.out.printf("Input file name is absent. Use: %s <filename>", INPUT_FILE_COMMAND);
+            return;
         }
+        String fileName = argsProcessor.getValue(INPUT_FILE_COMMAND);
+
+        TableLoader loader = chooseLoader(fileName);
+
+        Table table;
         try {
-            Workbook wb = null;
-            if (templateFile.matches(".+[.]xlsx")) {
-                wb = new XSSFWorkbook(inputStream);
-            } else if (templateFile.matches(".+[.]xls")) {
-                wb = new HSSFWorkbook(inputStream);
-            }
-
-            for (Sheet sheet : wb) {
-                System.out.printf("Sheet name: %s%n", sheet.getSheetName());
-                for (Row row : sheet) {
-                    for (Cell cell : row) {
-                        System.out.printf("row: %d column: %d type: %s%n",
-                                cell.getRowIndex(), cell.getColumnIndex(),
-                                cell.getCellType().name());
-                        switch (cell.getCellType()) {
-                            case STRING -> System.out.printf("String value: \"%s\"%n", cell.getStringCellValue());
-                            case NUMERIC -> System.out.printf("Numeric value: %f%n", cell.getNumericCellValue());
-                            case FORMULA -> System.out.printf("Formula value: %s%n", cell.getCellFormula());
-                        }
-                    }
-                }
-            }
-
+            table = loader.loadTable(fileName);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }*/
+            System.out.printf("Load table error: %s", e.getMessage());
+            return;
+        }
+
+        for (int row = 0; row < table.getHeight(); ++row) {
+            for (int col = 0; col < table.getWidth(); col++) {
+                System.out.printf("%s\t", table.getCell(row, col));
+            }
+            System.out.print('\n');
+        }
+
+
+    }
+
+    private static TableLoader chooseLoader(String fileName) {
+        if (fileName.matches(".+[.]xlsx?")) {
+            return new ExcelTableLoader();
+        }
+        return null;
     }
 
     private static void showHelp() {
