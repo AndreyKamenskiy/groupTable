@@ -17,7 +17,14 @@ public class Table {
     }
 
     public void setRow(int rowIndex, Row row) {
-        table.set(rowIndex, row);
+        if (rowIndex >= table.size()) {
+            for (int i = table.size(); i < rowIndex; ++i) {
+                table.add(new Row());
+            }
+            table.add(row);
+        } else {
+            table.set(rowIndex, row);
+        }
     }
 
     public Row getRow(int rowIndex) {
