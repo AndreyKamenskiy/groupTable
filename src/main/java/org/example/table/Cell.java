@@ -1,0 +1,89 @@
+package org.example.table;
+
+public class Cell {
+
+    private static final String TYPE_MISMATCH_ERROR = "Cell type mismatch";
+
+    public enum CellType {
+        DOUBLE,
+        STRING,
+        EMPTY
+    }
+
+    private CellType type;
+
+    private double doubleValue;
+
+    private String stringValue;
+
+    public Cell(double doubleValue) {
+        this.doubleValue = doubleValue;
+        type = CellType.DOUBLE;
+    }
+
+    public Cell(String stringValue) {
+        this.stringValue = stringValue;
+        type = CellType.STRING;
+    }
+
+    public Cell() {
+        type = CellType.EMPTY;
+    }
+
+    public CellType getType() {
+        return type;
+    }
+
+    public double getDoubleValue() throws IllegalArgumentException {
+        if (type != CellType.DOUBLE) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
+        return doubleValue;
+    }
+
+    public String getStringValue() {
+        return stringValue;
+    }
+
+    public boolean changeTypeTo(CellType toType) {
+        boolean res = false;
+        switch (type) {
+            case EMPTY -> {
+                switch (toType) {
+                    case DOUBLE -> {
+                        type = CellType.DOUBLE;
+                        doubleValue = 0;
+                        res = true;
+                    }
+                    case STRING -> {
+                        type = CellType.STRING;
+                        stringValue = "";
+                        res = true;
+                    }
+                    case EMPTY -> res = true;
+                }
+            }
+            case DOUBLE -> {
+                switch (toType) {
+                    case DOUBLE -> res = true;
+                    case STRING -> {
+                        type = CellType.STRING;
+                        stringValue = String.valueOf(doubleValue);
+                        res = true;
+                    }
+                }
+            }
+            case STRING -> {
+                if (toType == CellType.DOUBLE) {
+                    try {
+                        doubleValue = Double.parseDouble(stringValue);
+                        type = CellType.DOUBLE;
+                        res = true;
+                    } catch (NumberFormatException ex) {
+                        // не получилось преобразовать
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+}
