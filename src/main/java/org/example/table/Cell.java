@@ -7,9 +7,8 @@ public class Cell {
     public enum CellType {
         DOUBLE,
         STRING,
-        EMPTY
+        EMPTY;
     }
-
     private CellType type;
 
     private double doubleValue;
@@ -44,6 +43,18 @@ public class Cell {
         return stringValue;
     }
 
+    public void setDoubleValue(double value) throws IllegalArgumentException {
+        //todo: add tests for method
+        if (type != CellType.DOUBLE) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
+        doubleValue = value;
+    }
+
+    public void setStringValue(String stringValue) throws IllegalArgumentException {
+        //todo: add tests for method
+        if (type != CellType.STRING) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
+        this.stringValue = stringValue;
+    }
+
     public boolean changeTypeTo(CellType toType) {
         boolean res = false;
         switch (type) {
@@ -51,6 +62,7 @@ public class Cell {
                 if (toType == CellType.STRING) {
                     type = CellType.STRING;
                     stringValue = String.valueOf(doubleValue);
+                    // todo double 5.0 to String == "5", but not "5.0";
                     res = true;
                 }
             }
@@ -66,6 +78,18 @@ public class Cell {
                 } else if (toType == CellType.EMPTY && stringValue.isEmpty()) {
                     type = CellType.EMPTY;
                     res = true;
+                }
+            }
+            case EMPTY -> {
+                //todo: add tests for case;
+                if (toType == CellType.DOUBLE) {
+                    type = CellType.DOUBLE;
+                    doubleValue = 0;
+                    res = true;
+                } else if (toType == CellType.STRING) {
+                    type = CellType.STRING;
+                    res = true;
+                    stringValue = "";
                 }
             }
         }
@@ -85,5 +109,7 @@ public class Cell {
             case EMPTY -> "";
         };
     }
+
+    //todo: add hashCode and equals realization
 
 }
