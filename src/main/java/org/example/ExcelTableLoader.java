@@ -60,6 +60,7 @@ public class ExcelTableLoader implements TableLoader {
                 tableRow.setCell(cell.getColumnIndex(), tableCell);
             }
         }
+        wb.close();
         return table;
     }
 
