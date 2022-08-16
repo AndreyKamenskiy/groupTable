@@ -46,13 +46,11 @@ public class Cell {
     }
 
     public void setDoubleValue(double value) throws IllegalArgumentException {
-        //todo: add tests for method
         if (type != CellType.DOUBLE) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
         doubleValue = value;
     }
 
     public void setStringValue(String stringValue) throws IllegalArgumentException {
-        //todo: add tests for method
         if (type != CellType.STRING) throw new IllegalArgumentException(TYPE_MISMATCH_ERROR);
         this.stringValue = stringValue;
     }
@@ -63,7 +61,7 @@ public class Cell {
             case DOUBLE -> {
                 if (toType == CellType.STRING) {
                     type = CellType.STRING;
-                    stringValue = String.valueOf(doubleValue);
+                    stringValue = doubleToString(doubleValue);
                     // todo double 5.0 to String == "5", but not "5.0";
                     res = true;
                 }
@@ -83,7 +81,6 @@ public class Cell {
                 }
             }
             case EMPTY -> {
-                //todo: add tests for case;
                 if (toType == CellType.DOUBLE) {
                     type = CellType.DOUBLE;
                     doubleValue = 0;
@@ -104,16 +101,12 @@ public class Cell {
 
     @Override
     public String toString() {
-        //todo: add test
         return switch (type) {
-            case DOUBLE -> String.valueOf(doubleValue);
+            case DOUBLE -> doubleToString(doubleValue);
             case STRING -> stringValue;
             case EMPTY -> "";
         };
     }
-
-    //todo: add hashCode and equals realization
-
 
     @Override
     public boolean equals(Object o) {
@@ -143,4 +136,12 @@ public class Cell {
         }
         return result;
     }
+
+    private String doubleToString(double val) {
+        if (val % 1 == 0) {
+            return String.valueOf((long) val);
+        }
+        return String.valueOf(val);
+    }
+
 }

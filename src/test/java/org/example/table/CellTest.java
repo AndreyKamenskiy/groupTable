@@ -14,7 +14,7 @@ class CellTest {
         assert c.getType() == Cell.CellType.DOUBLE;
         c = new Cell("");
         assert c.getType() == Cell.CellType.STRING;
-        c = new Cell("dfgsd");
+        c = new Cell("some text");
         assert c.getType() == Cell.CellType.STRING;
     }
 
@@ -22,7 +22,7 @@ class CellTest {
     void getDoubleValue() {
         Cell c = new Cell(-5);
         assert c.getDoubleValue() == -5;
-        final Cell cc = new Cell("asdf");
+        final Cell cc = new Cell("deus moris");
         assertThrowsExactly(IllegalArgumentException.class, cc::getDoubleValue);
     }
 
@@ -100,6 +100,56 @@ class CellTest {
     }
 
 
+    @Test
+    void setDoubleValue() {
+        Cell c = new Cell();
+        assertThrowsExactly(IllegalArgumentException.class, () -> c.setDoubleValue(100));
+        c.changeTypeTo(Cell.CellType.DOUBLE);
+        assert c.getDoubleValue() == 0;
+        c.setDoubleValue(50);
+        assert c.getDoubleValue() == 50;
+        Cell c2 = new Cell("initValue");
+        assertThrowsExactly(IllegalArgumentException.class, () -> c2.setDoubleValue(100));
+    }
+
+    @Test
+    void setStringValue() {
+        Cell c = new Cell();
+        assertThrowsExactly(IllegalArgumentException.class, () -> c.setStringValue("100"));
+        c.changeTypeTo(Cell.CellType.STRING);
+        c.setStringValue("50");
+        assert c.getStringValue().equals("50");
+        Cell c2 = new Cell(45);
+        assertThrowsExactly(IllegalArgumentException.class, () -> c2.setStringValue("450"));
+    }
+
+    @Test
+    void toStringTest() {
+        Cell c = new Cell();
+        assert "".equals(c.toString());
+        c = new Cell("test");
+        assert "test".equals(c.toString());
+        c = new Cell(50);
+        assertEquals("50", c.toString());
+        c.changeTypeTo(Cell.CellType.STRING);
+        assertEquals("50", c.getStringValue());
+        c = new Cell(100.000000000000001);
+        Cell c1 = new Cell(100);
+        assertEquals(c.getDoubleValue(), c1.getDoubleValue());
+        assert c.equals(c1);
+        assertEquals(c.hashCode(), c1.hashCode());
+
+        long l1 = 100000000000000001L;
+        long l2 = 100000000000000000L;
+        c = new Cell(l1);
+        c1 = new Cell(l2);
+        assertEquals(c.getDoubleValue(), c1.getDoubleValue());
+        assertEquals(c.toString(), c1.toString());
+        assertEquals(String.valueOf(l2), c1.toString());
+        assertNotEquals(String.valueOf(l1), c1.toString());
+        assert c.equals(c1);
+        assertEquals(c.hashCode(), c1.hashCode());
+    }
 
 
 }
