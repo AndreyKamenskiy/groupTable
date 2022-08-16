@@ -26,24 +26,20 @@ public class Main {
 
         TableLoader loader = createTableLoader(inputFileName);
 
-        Table table = null;
+        Table inTable = null;
         try {
-            table = loader.loadTable(inputFileName);
+            inTable = loader.loadTable(inputFileName);
         } catch (IOException e) {
             System.out.printf("Table load error: %s%n", e.getMessage());
             System.exit(LOAD_ERROR_EXIT_STATUS);
         }
 
-        for (int row = 0; row < table.getHeight(); ++row) {
-            for (int col = 0; col < table.getWidth(); col++) {
-                System.out.printf("%s\t", table.getCell(row, col));
-            }
-            System.out.print('\n');
-        }
+        TableGrouper grouper = new TrieTableGrouper();
+        Table outTable = grouper.groupTable(inTable);
 
         TableSaver saver = createTableSaver(outputFileName);
         try {
-            saver.saveTable(outputFileName, table);
+            saver.saveTable(outputFileName, outTable);
         } catch (IOException e) {
             System.out.printf("Table save error: %s%n", e.getMessage());
             System.exit(SAVE_ERROR_EXIT_STATUS);
