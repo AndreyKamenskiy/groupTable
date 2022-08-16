@@ -48,4 +48,14 @@ public class Row {
         return row.get(columnIndex);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < row.size(); i++) {
+            sb.append(getCell(i).toString());
+            sb.append(' ');
+        }
+        return sb.toString();
+    }
+
 }
