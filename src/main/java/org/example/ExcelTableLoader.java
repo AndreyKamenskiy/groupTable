@@ -49,6 +49,7 @@ public class ExcelTableLoader implements TableLoader {
                     case NUMERIC -> tableCell = new org.example.table.Cell(cell.getNumericCellValue());
                     case FORMULA -> tableCell = new org.example.table.Cell(cell.getCellFormula());
                     case BLANK -> tableCell = new org.example.table.Cell();
+                    case BOOLEAN -> tableCell = new org.example.table.Cell(String.valueOf(cell.getBooleanCellValue()));
                     default -> throw new IllegalArgumentException(
                             String.format(CELL_TYPE_ERROR,
                                     cell.getRowIndex(),
