@@ -4,8 +4,7 @@ import org.example.table.Cell;
 import org.example.table.Row;
 import org.example.table.Table;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class TrieTableGrouper implements TableGrouper {
@@ -77,6 +76,18 @@ public class TrieTableGrouper implements TableGrouper {
                 ++leafColumn;
             }
 
+        }
+
+        public boolean hasLeaf() {
+            return leaf != null;
+        }
+
+        public Collection<TrieNode> getChildren() {
+            return children.values();
+        }
+
+        public Row getLeaf() {
+            return leaf;
         }
     }
 
@@ -208,9 +219,16 @@ public class TrieTableGrouper implements TableGrouper {
 
     private Table trieToTable(TrieNode root) {
         Table table = new Table();
-        //todo: write method
-
-
+        Queue<TrieNode> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            TrieNode node = queue.poll();
+            if (node.hasLeaf()) {
+                table.setRow(table.getHeight(), node.getLeaf());
+            } else {
+                queue.addAll(node.getChildren());
+            }
+        }
         return table;
     }
 
