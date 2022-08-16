@@ -28,7 +28,9 @@ public class TrieTableGrouper implements TableGrouper {
         }
 
         public TrieNode addChild(Cell child) {
-            return children.put(child, new TrieNode());
+            TrieNode newNode = new TrieNode();
+            children.put(child, newNode);
+            return newNode;
         }
 
         public boolean hasChild(Cell child) {
@@ -56,6 +58,7 @@ public class TrieTableGrouper implements TableGrouper {
                         case CRITERIA -> leaf.addCell(row.getCell(column));
                         case MIN, MAX -> leaf.addCell(new Cell());
                         case CONCAT -> leaf.addCell(new Cell(""));
+                        case SUM -> leaf.addCell(new Cell(0));
                     }
                 }
             }
@@ -183,7 +186,7 @@ public class TrieTableGrouper implements TableGrouper {
         }
         if (lhs.getType() != Cell.CellType.STRING) {
             //в строку можно сконвертировать все что угодно, результат можно не проверять
-            rhs.changeTypeTo(Cell.CellType.STRING);
+            lhs.changeTypeTo(Cell.CellType.STRING);
         }
         lhs.setStringValue(lhs.getStringValue() + rhs.toString());
         return lhs;
