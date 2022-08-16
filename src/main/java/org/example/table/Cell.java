@@ -62,7 +62,6 @@ public class Cell {
                 if (toType == CellType.STRING) {
                     type = CellType.STRING;
                     stringValue = doubleToString(doubleValue);
-                    // todo double 5.0 to String == "5", but not "5.0";
                     res = true;
                 }
             }
