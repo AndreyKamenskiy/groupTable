@@ -1,5 +1,7 @@
 package org.example.table;
 
+import java.util.Objects;
+
 public class Cell {
 
     private static final String TYPE_MISMATCH_ERROR = "Cell type mismatch";
@@ -7,7 +9,7 @@ public class Cell {
     public enum CellType {
         DOUBLE,
         STRING,
-        EMPTY;
+        EMPTY
     }
     private CellType type;
 
@@ -112,4 +114,33 @@ public class Cell {
 
     //todo: add hashCode and equals realization
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cell cell = (Cell) o;
+        if (type != cell.type) return false;
+        boolean res = false;
+        switch (type) {
+            case DOUBLE -> res = Double.compare(cell.doubleValue, doubleValue) == 0;
+            case EMPTY -> res = true;
+            case STRING -> res = Objects.equals(stringValue, cell.stringValue);
+        }
+        return res;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        switch (type) {
+            case DOUBLE -> {
+                long temp = Double.doubleToLongBits(doubleValue);
+                result = 31 * result + (int) (temp ^ (temp >>> 32));
+            }
+            case STRING -> result = 31 * result + (stringValue != null ? stringValue.hashCode() : 0);
+        }
+        return result;
+    }
 }

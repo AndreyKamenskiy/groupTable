@@ -37,8 +37,8 @@ class CellTest {
     @Test
     void changeTypeTo() {
         Cell c = new Cell();
-        assertFalse(c.changeTypeTo(Cell.CellType.DOUBLE));
-        assertFalse(c.changeTypeTo(Cell.CellType.STRING));
+        assert c.changeTypeTo(Cell.CellType.DOUBLE);
+        assert c.changeTypeTo(Cell.CellType.STRING);
         assertFalse(c.changeTypeTo(Cell.CellType.EMPTY)); // уже пустая ячейка
         c = new Cell(5);
         assertFalse(c.changeTypeTo(Cell.CellType.EMPTY));
@@ -71,4 +71,35 @@ class CellTest {
         c = new Cell("foo");
         assertFalse(c.isEmpty());
     }
+
+    @Test
+    void equals() {
+        Cell c1 = new Cell();
+        Cell c2 = new Cell();
+        assert c1.hashCode() == c2.hashCode();
+        assert c1.equals(c2);
+        c1.changeTypeTo(Cell.CellType.DOUBLE);
+        c1.setDoubleValue(50);
+        c2.changeTypeTo(Cell.CellType.STRING);
+        c2.setStringValue(c1.toString());
+        c1.changeTypeTo(Cell.CellType.STRING);
+        assert c1.getType() == Cell.CellType.STRING;
+        assert c2.getType() == Cell.CellType.STRING;
+        assert c2.getStringValue().equals(c1.getStringValue());
+        assert c1.equals(c2);
+        assert c1.hashCode() == c2.hashCode();
+
+        c1 = new Cell(0.5);
+        c2 = new Cell("0.5");
+        c2.changeTypeTo(Cell.CellType.DOUBLE);
+        assert c1.getType() == Cell.CellType.DOUBLE;
+        assert c2.getType() == Cell.CellType.DOUBLE;
+        assert Double.compare(c1.getDoubleValue(), c2.getDoubleValue()) == 0;
+        assert c1.equals(c2);
+        assert c1.hashCode() == c2.hashCode();
+    }
+
+
+
+
 }
