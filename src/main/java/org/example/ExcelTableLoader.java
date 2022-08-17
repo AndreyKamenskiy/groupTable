@@ -81,9 +81,20 @@ public class ExcelTableLoader implements TableLoader {
         switch (excelCell.getCellType()) {
             case STRING -> tableCell = new org.example.table.Cell(excelCell.getStringCellValue());
             case NUMERIC -> tableCell = new org.example.table.Cell(excelCell.getNumericCellValue());
-            case FORMULA -> tableCell = new org.example.table.Cell(excelCell.getCellFormula());
+            case FORMULA -> {
+                String form = excelCell.getCellFormula();
+                try {
+                    Double.parseDouble(form);
+                    form = form.replace('.', ',');
+                } catch (NumberFormatException ignored) {
+                }
+                //особенность appache.poi - она формулу "=1,5" загружает как строку "1,5"
+                // поэтому проверяем, если формула может быть преобразована в число, то меняем точку на запятую
+                tableCell = new org.example.table.Cell(form);
+            }
             case BLANK -> tableCell = new org.example.table.Cell();
             case BOOLEAN -> tableCell = new org.example.table.Cell(String.valueOf(excelCell.getBooleanCellValue()));
+            case ERROR -> tableCell = new org.example.table.Cell(String.valueOf(excelCell.toString()));
             default -> throw new IllegalArgumentException(
                     String.format(CELL_TYPE_ERROR, excelCell.getRowIndex(),
                             excelCell.getColumnIndex(), excelCell.getCellType().name())
