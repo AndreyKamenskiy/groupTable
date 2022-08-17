@@ -17,6 +17,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "src/test/testResources/simpleTests/tableSize.xlsx",
+            "src/test/testResources/simpleTests/simple.xlsx",
+            "src/test/testResources/simpleTests/emptymeasures.xlsx",
+
+
+    }, ignoreLeadingAndTrailingWhitespace = false)
+    void complexTests(String inputFileName) {
+        String outputFileName = "src/test/testResources/out.xlsx";
+        String[] args = String
+                .format("-inputFile %s -outputFile %s", inputFileName, outputFileName)
+                .split("\\s+");
+        Main.main(args);
+        assert isEqualsTables(inputFileName, "out", outputFileName, null);
+    }
+
     Comparator<Row> rowComparator = (r1, r2) -> {
         int len = Math.max(r1.getWidth(), r2.getWidth());
         for (int i = 0; i < len; i++) {
@@ -28,35 +45,6 @@ class MainTest {
         return 0;
     };
 
-    @ParameterizedTest
-    @CsvSource(value = {
-            "src/test/testResources/simpleTests/simple.xlsx",
-    }, ignoreLeadingAndTrailingWhitespace = false)
-    void complexTests(String inputFileName) {
-        String outputFileName = "src/test/testResources/out.xlsx";
-        String[] args = String
-                .format("-inputFile %s -outputFile %s", inputFileName, outputFileName)
-                .split("\\s+");
-        Main.main(args);
-        assert isEqualsTables(inputFileName, "out", outputFileName, null);
-    }
-
-
-
-/*    @Test
-    void simpleTest() {
-        String[] args = new String[]{
-                "-inputFile",
-                "src/test/testResources/example1.xlsx",
-                "-outputFile",
-                "src/test/testResources/out.xlsx"
-        };
-
-        String testerName = "src/test/testResources/answer1.xlsx";
-
-        Main.main(args);
-        assert isEqualsTables(testerName, args[3]);
-    }*/
 
     private boolean isEqualsTables(String file1, String sheet1, String file2, String sheet2) {
         //здесь мы точно знаем, что будем работать с excel, поэтому не шспользуем интерфейс
@@ -92,7 +80,7 @@ class MainTest {
             rows.add(table.getRow(i));
         }
 
-        Collections.sort(rows, rowComparator);
+        rows.sort(rowComparator);
         for (int i = 0; i < rows.size(); ++i) {
             table.setRow(i, rows.get(i));
         }

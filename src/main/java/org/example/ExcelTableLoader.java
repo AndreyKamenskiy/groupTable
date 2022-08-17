@@ -34,7 +34,8 @@ public class ExcelTableLoader implements TableLoader {
                 // значит нашлась как минимум одна пустая строка - можно дальше не загружать
                 break;
             }
-            org.example.table.Row tableRow = table.addRow();
+            org.example.table.Row tableRow = new org.example.table.Row();
+            boolean rowHasData = false;
             for (Cell cell : row) {
                 int columnIndex = cell.getColumnIndex();
                 org.example.table.Cell tableCell = getTableCell(cell);
@@ -43,7 +44,11 @@ public class ExcelTableLoader implements TableLoader {
                     // сохраним все непустые столбцы для поиска полностью пустых столбцов
                     columnsWithData.add(columnIndex);
                     maxColumnIndex = Math.max(maxColumnIndex, columnIndex);
+                    rowHasData = true;
                 }
+            }
+            if (rowHasData) {
+                table.setRow(table.getHeight(), tableRow);
             }
         }
         wb.close();
