@@ -69,4 +69,26 @@ class RowTest {
         assertEquals(r.getCell(2).getStringValue(), "asd");
         assertThrowsExactly(IndexOutOfBoundsException.class, () -> r.getCell(-500));
     }
+
+    @Test
+    void narrow() {
+        Row r = new Row();
+        r.setCell(50, new Cell(50));
+        assert r.getWidth() == 51;
+        r.narrow(51);
+        assert r.getWidth() == 51;
+        r.narrow(52);
+        assert r.getWidth() == 51;
+        r.narrow(50);
+        assert r.getWidth() == 0;
+
+        r.setCell(30, new Cell(15));
+        r.setCell(15, new Cell("test"));
+        r.setCell(26, new Cell("test"));
+        r.narrow(27);
+        assert r.getWidth() == 27;
+        r.narrow(25);
+        assert r.getWidth() == 16;
+    }
+
 }

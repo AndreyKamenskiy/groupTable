@@ -25,9 +25,7 @@ public class Row {
         if (columnIndex + 1 == row.size() && cell != null && cell.isEmpty()) {
             //Если последнюю ячейку меняют пустую, то удалим все пустые ячейки с хвоста
             row.remove(columnIndex);
-            while (!row.isEmpty() && row.get(row.size() - 1).isEmpty()) {
-                row.remove(row.size() - 1);
-            }
+            removeEmptyTail();
             return;
         }
         if (columnIndex >= row.size()) {
@@ -37,6 +35,12 @@ public class Row {
             row.add(cell);
         } else {
             row.set(columnIndex, cell);
+        }
+    }
+
+    private void removeEmptyTail() {
+        while (!row.isEmpty() && row.get(row.size() - 1).isEmpty()) {
+            row.remove(row.size() - 1);
         }
     }
 
@@ -56,6 +60,17 @@ public class Row {
             sb.append(' ');
         }
         return sb.toString();
+    }
+
+    public void narrow(int newSize) {
+        //сузим строку до указанного размера
+        if (getWidth() <= newSize) {
+            return;
+        }
+        while (row.size() > newSize) {
+            row.remove(row.size() - 1);
+        }
+        removeEmptyTail();
     }
 
 }
