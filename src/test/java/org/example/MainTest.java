@@ -4,6 +4,8 @@ import org.example.table.Cell;
 import org.example.table.Row;
 import org.example.table.Table;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,22 +17,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
-    Comparator<Row> rowComparator = new Comparator<Row>() {
-        @Override
-        public int compare(Row r1, Row r2) {
-            int len = Math.max(r1.getWidth(), r2.getWidth());
-            for (int i = 0; i < len; i++) {
-                Cell c1 = r1.getCell(i);
-                Cell c2 = r2.getCell(i);
-                if (c1.equals(c2)) continue;
-                return c1.toString().compareTo(c2.toString());
-            }
-            return 0;
+    Comparator<Row> rowComparator = (r1, r2) -> {
+        int len = Math.max(r1.getWidth(), r2.getWidth());
+        for (int i = 0; i < len; i++) {
+            Cell c1 = r1.getCell(i);
+            Cell c2 = r2.getCell(i);
+            if (c1.equals(c2)) continue;
+            return c1.toString().compareTo(c2.toString());
         }
+        return 0;
     };
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "src/test/testResources/simpleTests/simple.xlsx",
+    }, ignoreLeadingAndTrailingWhitespace = false)
+    void complexTests(String inputFileName) {
+        String outputFileName = "src/test/testResources/out.xlsx";
+        String[] args = String
+                .format("-inputFile %s -outputFile %s", inputFileName, outputFileName)
+                .split("\\s+");
+        Main.main(args);
+        assert isEqualsTables(inputFileName, "out", outputFileName, null);
+    }
 
-    @Test
+
+
+/*    @Test
     void simpleTest() {
         String[] args = new String[]{
                 "-inputFile",
@@ -43,13 +56,16 @@ class MainTest {
 
         Main.main(args);
         assert isEqualsTables(testerName, args[3]);
-    }
+    }*/
 
-    private boolean isEqualsTables(String file1, String file2) {
-        TableLoader loader = new ExcelTableLoader();
+    private boolean isEqualsTables(String file1, String sheet1, String file2, String sheet2) {
+        //здесь мы точно знаем, что будем работать с excel, поэтому не шспользуем интерфейс
+        ExcelTableLoader loader = new ExcelTableLoader();
         boolean res = true;
         try {
+            loader.setSheetName(sheet1); // может быть null
             Table table1 = loader.loadTable(file1);
+            loader.setSheetName(sheet2); // может быть null
             Table table2 = loader.loadTable(file2);
             assert table1.getHeight() == table2.getHeight();
             assert table1.getWidth() == table2.getWidth();
