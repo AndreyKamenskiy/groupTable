@@ -97,7 +97,6 @@ public class TrieTableGrouper implements TableGrouper {
 
     private static final String EMPTY_TABLE_ERROR = "Grouping error: empty parameters row";
     private static final String UNKNOWN_PARAMETER_ERROR = "Grouping error: unknown parameter %s on cell(0;%d)";
-    private static final String NO_CRITERIA_ERROR = "Grouping error: there are no criteria columns in the table";
     private static final String TRANSFORM_ERROR =
             "Grouping error: could not transform %s from type %s to %s for %s measure.";
 
@@ -276,9 +275,6 @@ public class TrieTableGrouper implements TableGrouper {
         criteriaNum = 0;
         for (int column = 0; column < inTableWidth; ++column) {
             parseParameterCell(column, firstRow.getCell(column));
-        }
-        if (criteriaNum == 0) {
-            throw new IllegalArgumentException(NO_CRITERIA_ERROR);
         }
         criteriaColumns = new int[criteriaNum];
         int i = 0;

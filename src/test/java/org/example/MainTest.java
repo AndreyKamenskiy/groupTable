@@ -3,17 +3,13 @@ package org.example;
 import org.example.table.Cell;
 import org.example.table.Row;
 import org.example.table.Table;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
@@ -22,7 +18,7 @@ class MainTest {
             "src/test/testResources/simpleTests/tableSize.xlsx",
             "src/test/testResources/simpleTests/simple.xlsx",
             "src/test/testResources/simpleTests/emptymeasures.xlsx",
-
+            "src/test/testResources/simpleTests/noCriteria.xlsx",
 
     }, ignoreLeadingAndTrailingWhitespace = false)
     void complexTests(String inputFileName) {
