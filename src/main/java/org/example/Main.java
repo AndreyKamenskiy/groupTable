@@ -17,7 +17,7 @@ public class Main {
     private static final String PRINT_STAT_COMMAND = "-printStats";
     private static final String INPUT_FILE_COMMAND = "-inputFile";
     private static final String OUTPUT_FILE_COMMAND = "-outputFile";
-    private static final String DEFAULT_OUTPUT_FILE_NAME = "groupingTable.xls";
+    private static final String DEFAULT_OUTPUT_FILE_NAME = "groupingTable.xlsx";
     private static final int UNKNOWN_FORMAT_EXIT_STATUS = 1;
     private static final int LOAD_ERROR_EXIT_STATUS = 2;
     private static final int SAVE_ERROR_EXIT_STATUS = 3;
