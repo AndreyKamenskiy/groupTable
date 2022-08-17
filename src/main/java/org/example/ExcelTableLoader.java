@@ -18,22 +18,23 @@ public class ExcelTableLoader implements TableLoader {
     //todo: add tests
 
     private static final String CELL_TYPE_ERROR = "Cannot read cell(%d,%d) of %s format.";
+    private static final String ILLEGAL_SHEET_NAME_ERROR = "Sheet %s is absent";
 
-    private Workbook loadWorkBook(String fileName) throws IOException {
-        FileInputStream inputStream = new FileInputStream(fileName);
-        Workbook wb = null;
-        if (fileName.matches(".+[.]xlsx")) {
-            wb = new XSSFWorkbook(inputStream);
-        } else if (fileName.matches(".+[.]xls")) {
-            wb = new HSSFWorkbook(inputStream);
-        }
-        return wb;
-    }
+    private String sheetName = null;
 
     @Override
     public Table loadTable(String fileName) throws IOException {
         Workbook wb = loadWorkBook(fileName);
-        Sheet sheet = wb.getSheetAt(0); //на данном этапе работаем только с 0 страницей
+        Sheet sheet;
+        if (sheetName != null) {
+            sheet = wb.getSheet(sheetName);
+            if (sheet == null) {
+                throw new IllegalArgumentException(String.format(ILLEGAL_SHEET_NAME_ERROR, sheetName));
+            }
+        } else {
+            //по умолчанию загружается самая первая таблица
+            sheet = wb.getSheetAt(0);
+        }
         Table table = new Table();
         for (Row row : sheet) {
             if (row.getRowNum() > table.getHeight()) {
@@ -50,19 +51,29 @@ public class ExcelTableLoader implements TableLoader {
                     case FORMULA -> tableCell = new org.example.table.Cell(cell.getCellFormula());
                     case BLANK -> tableCell = new org.example.table.Cell();
                     case BOOLEAN -> tableCell = new org.example.table.Cell(String.valueOf(cell.getBooleanCellValue()));
-                    default -> throw new IllegalArgumentException(
-                            String.format(CELL_TYPE_ERROR,
-                                    cell.getRowIndex(),
-                                    cell.getColumnIndex(),
-                                    cell.getCellType().name()
-                            )
-                    );
+                    default ->
+                            throw new IllegalArgumentException(String.format(CELL_TYPE_ERROR, cell.getRowIndex(), cell.getColumnIndex(), cell.getCellType().name()));
                 }
                 tableRow.setCell(cell.getColumnIndex(), tableCell);
             }
         }
         wb.close();
         return table;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
+
+    private Workbook loadWorkBook(String fileName) throws IOException {
+        FileInputStream inputStream = new FileInputStream(fileName);
+        Workbook wb = null;
+        if (fileName.matches(".+[.]xlsx")) {
+            wb = new XSSFWorkbook(inputStream);
+        } else if (fileName.matches(".+[.]xls")) {
+            wb = new HSSFWorkbook(inputStream);
+        }
+        return wb;
     }
 
 }
