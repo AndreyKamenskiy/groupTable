@@ -53,6 +53,7 @@ public class TrieTableGrouper implements TableGrouper {
                 //так как строка может быть уже всей таблицы переберем весь массив параметры
                 // он по ширине равен таблице
                 for (int column = 0; column < parameters.length; ++column) {
+                    // todo: move switch to map like leafEmptyCellType
                     switch (parameters[column]) {
                         // case UNUSED -> nothing to do
                         case CRITERIA -> leaf.addCell(row.getCell(column));
@@ -122,7 +123,16 @@ public class TrieTableGrouper implements TableGrouper {
             "concat", ColumnType.CONCAT
     );
 
-    private static BiFunction<Cell, Cell, Cell> sum = (lhs, rhs) -> {
+    //если в итоговой строке столбец - мера оказался пустым, то этот словарь покажет в какой тип ее конвертировать.
+    private static final Map<ColumnType, Cell.CellType> leafEmptyCellType = Map.of(
+        ColumnType.SUM, Cell.CellType.DOUBLE,
+            ColumnType.MIN, Cell.CellType.DOUBLE,
+            ColumnType.MAX, Cell.CellType.DOUBLE,
+            ColumnType.CONCAT, Cell.CellType.EMPTY
+    );
+
+
+    private static final BiFunction<Cell, Cell, Cell> sum = (lhs, rhs) -> {
         if (lhs.isEmpty()) return rhs;
         if (rhs.getType() != Cell.CellType.DOUBLE) {
             if (!rhs.changeTypeTo(Cell.CellType.DOUBLE)) {
@@ -133,7 +143,7 @@ public class TrieTableGrouper implements TableGrouper {
         return rhs;
     };
 
-    private static BiFunction<Cell, Cell, Cell> min = (lhs, rhs) -> {
+    private static final BiFunction<Cell, Cell, Cell> min = (lhs, rhs) -> {
         //минимум из пустых ячеек = 0;
         //если все положительные и 1 пустая, то она не учитывается в сравненнии
         if (lhs.isEmpty()) {
@@ -156,7 +166,7 @@ public class TrieTableGrouper implements TableGrouper {
         return rhs.getDoubleValue() < lhs.getDoubleValue() ? rhs : lhs;
     };
 
-    private static BiFunction<Cell, Cell, Cell> max = (lhs, rhs) -> {
+    private static final BiFunction<Cell, Cell, Cell> max = (lhs, rhs) -> {
         //максимум из пустых ячеек = 0;
         //если все отрицательные и есть пустые, то они не учитываются в сравненнии
         if (lhs.isEmpty()) {
@@ -179,7 +189,7 @@ public class TrieTableGrouper implements TableGrouper {
         return lhs.getDoubleValue() < rhs.getDoubleValue() ? rhs : lhs;
     };
 
-    private static BiFunction<Cell, Cell, Cell> concat = (lhs, rhs) -> {
+    private static final BiFunction<Cell, Cell, Cell> concat = (lhs, rhs) -> {
         if (lhs.isEmpty() && rhs.isEmpty()) {
             // если обе пустые вернем пустую
             return rhs;
@@ -207,7 +217,6 @@ public class TrieTableGrouper implements TableGrouper {
     private int[] criteriaColumns;
 
     private int criteriaNum;
-    private int unusedNum;
 
     @Override
     public Table groupTable(Table inTable) throws IllegalArgumentException {
@@ -227,12 +236,34 @@ public class TrieTableGrouper implements TableGrouper {
         while (!queue.isEmpty()) {
             TrieNode node = queue.poll();
             if (node.hasLeaf()) {
-                table.setRow(table.getHeight(), node.getLeaf());
+                Row leaf = node.getLeaf();
+                checkEmptyLeafCells(leaf);
+                table.setRow(table.getHeight(), leaf);
             } else {
                 queue.addAll(node.getChildren());
             }
         }
         return table;
+    }
+
+    private void checkEmptyLeafCells(Row leaf) {
+
+        for (int column = 0, leafColumn = 0; column < parameters.length; ++column) {
+            ColumnType type = parameters[column];
+            if (type == ColumnType.UNUSED) {
+                continue;
+            }
+            if (type == ColumnType.CRITERIA || leaf.getCell(leafColumn).getType() != Cell.CellType.EMPTY) {
+                ++leafColumn;
+                continue;
+            }
+            // нашли пустую ячейку. указатель parameters[column] указывает тип меры.
+            // leafColumn указывает на столбец в листе, соответствующий column
+            Cell cell = leaf.getCell(leafColumn);
+            ColumnType measureType = parameters[column];
+            cell.changeTypeTo(leafEmptyCellType.get(measureType));
+            ++leafColumn;
+        }
     }
 
     private void parseParameters() throws IllegalArgumentException {
@@ -243,7 +274,6 @@ public class TrieTableGrouper implements TableGrouper {
         int inTableWidth = inTable.getWidth();
         parameters = new ColumnType[inTableWidth];
         criteriaNum = 0;
-        unusedNum = 0;
         for (int column = 0; column < inTableWidth; ++column) {
             parseParameterCell(column, firstRow.getCell(column));
         }
@@ -271,9 +301,6 @@ public class TrieTableGrouper implements TableGrouper {
                     throw new IllegalArgumentException(String.format(UNKNOWN_PARAMETER_ERROR, cell, column));
                 }
                 parameters[column] = nameToType.get(lowCaseCellValue);
-                if (parameters[column] == ColumnType.UNUSED) {
-                    ++unusedNum;
-                }
             }
             case DOUBLE -> throw new IllegalArgumentException(
                     String.format(UNKNOWN_PARAMETER_ERROR, cell, column)
