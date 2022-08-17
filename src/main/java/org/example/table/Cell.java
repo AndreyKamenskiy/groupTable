@@ -72,7 +72,14 @@ public class Cell {
                         type = CellType.DOUBLE;
                         res = true;
                     } catch (NumberFormatException ex) {
-                        // не получилось преобразовать
+                        //попробуем заменить запятые на точки, т.к.
+                        // для excel строка "5,5" - это число, а для java нет.
+                        try {
+                            doubleValue = Double.parseDouble(stringValue.replace(',', '.'));
+                            type = CellType.DOUBLE;
+                            res = true;
+                        } catch (NumberFormatException ignored) {
+                        }
                     }
                 } else if (toType == CellType.EMPTY && stringValue.isEmpty()) {
                     type = CellType.EMPTY;
@@ -140,7 +147,8 @@ public class Cell {
         if (val % 1 == 0) {
             return String.valueOf((long) val);
         }
-        return String.valueOf(val);
+        //т.к. в excel дробная часть отделяется запятой, а в java точкой, то конвертируем в excel формат
+        return String.valueOf(val).replace(".", ",");
     }
 
 }
