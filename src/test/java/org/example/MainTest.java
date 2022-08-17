@@ -12,13 +12,22 @@ import java.util.Comparator;
 import java.util.List;
 
 class MainTest {
-
     @ParameterizedTest
     @CsvSource(value = {
+            "src/test/testResources/simpleTests/concat.xlsx",
+            "src/test/testResources/simpleTests/emptyLeafs2.xlsx",
             "src/test/testResources/simpleTests/tableSize.xlsx",
             "src/test/testResources/simpleTests/simple.xlsx",
             "src/test/testResources/simpleTests/emptymeasures.xlsx",
             "src/test/testResources/simpleTests/noCriteria.xlsx",
+            "src/test/testResources/simpleTests/noMeasures1.xlsx",
+            "src/test/testResources/simpleTests/noMeasures2.xlsx",
+            "src/test/testResources/simpleTests/onlyUnused.xlsx",
+            "src/test/testResources/simpleTests/criteria1.xlsx",
+            "src/test/testResources/simpleTests/criteria2.xlsx",
+            "src/test/testResources/simpleTests/emptyLeafs.xlsx",
+            "src/test/testResources/simpleTests/transform1.xlsx",
+            "src/test/testResources/simpleTests/10000-100-5-95-32row.xlsx",
 
     }, ignoreLeadingAndTrailingWhitespace = false)
     void complexTests(String inputFileName) {
@@ -29,6 +38,7 @@ class MainTest {
         Main.main(args);
         assert isEqualsTables(inputFileName, "out", outputFileName, null);
     }
+
 
     Comparator<Row> rowComparator = (r1, r2) -> {
         int len = Math.max(r1.getWidth(), r2.getWidth());
@@ -81,6 +91,5 @@ class MainTest {
             table.setRow(i, rows.get(i));
         }
     }
-
 
 }
