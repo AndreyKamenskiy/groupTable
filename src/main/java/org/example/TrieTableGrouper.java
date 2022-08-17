@@ -145,20 +145,18 @@ public class TrieTableGrouper implements TableGrouper {
     private static final BiFunction<Cell, Cell, Cell> min = (lhs, rhs) -> {
         //минимум из пустых ячеек = 0;
         //если все положительные и 1 пустая, то она не учитывается в сравненнии
-        if (lhs.isEmpty()) {
-            if (rhs.isEmpty()) {
-                return rhs;
-            } else if (rhs.getType() != Cell.CellType.DOUBLE) {
-                if (!rhs.changeTypeTo(Cell.CellType.DOUBLE)) {
-                    throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.MIN);
-                }
+        if (rhs.isEmpty()) return lhs;
+        if (lhs.isEmpty()) return rhs;
+
+        if (lhs.getType() != Cell.CellType.DOUBLE) {
+            if (!lhs.changeTypeTo(Cell.CellType.DOUBLE)) {
+                throwTransformError(lhs, lhs.getType(), Cell.CellType.DOUBLE, ColumnType.MIN);
             }
-            //любое число меньше, чем пустая ячейка
-            return rhs;
         }
+
         if (rhs.getType() != Cell.CellType.DOUBLE) {
             if (!rhs.changeTypeTo(Cell.CellType.DOUBLE)) {
-                throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.SUM);
+                throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.MIN);
             }
         }
 
@@ -168,20 +166,18 @@ public class TrieTableGrouper implements TableGrouper {
     private static final BiFunction<Cell, Cell, Cell> max = (lhs, rhs) -> {
         //максимум из пустых ячеек = 0;
         //если все отрицательные и есть пустые, то они не учитываются в сравненнии
-        if (lhs.isEmpty()) {
-            if (rhs.isEmpty()) {
-                return rhs;
-            } else if (rhs.getType() != Cell.CellType.DOUBLE) {
-                if (!rhs.changeTypeTo(Cell.CellType.DOUBLE)) {
-                    throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.MIN);
-                }
+        if (rhs.isEmpty()) return lhs;
+        if (lhs.isEmpty()) return rhs;
+
+        if (lhs.getType() != Cell.CellType.DOUBLE) {
+            if (!lhs.changeTypeTo(Cell.CellType.DOUBLE)) {
+                throwTransformError(lhs, lhs.getType(), Cell.CellType.DOUBLE, ColumnType.MAX);
             }
-            //любое число больше, чем пустая ячейка
-            return rhs;
         }
+
         if (rhs.getType() != Cell.CellType.DOUBLE) {
             if (!rhs.changeTypeTo(Cell.CellType.DOUBLE)) {
-                throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.SUM);
+                throwTransformError(rhs, rhs.getType(), Cell.CellType.DOUBLE, ColumnType.MAX);
             }
         }
 
