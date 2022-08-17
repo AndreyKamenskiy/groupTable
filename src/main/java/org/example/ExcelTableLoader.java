@@ -1,16 +1,15 @@
 package org.example;
 
+import org.apache.poi.ss.usermodel.*;
 import org.example.table.Table;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 // warning: loads to first empty row!!
 public class ExcelTableLoader implements TableLoader {
@@ -24,7 +23,71 @@ public class ExcelTableLoader implements TableLoader {
 
     @Override
     public Table loadTable(String fileName) throws IOException {
+        Set<Integer> columnsWithData = new HashSet<>();
         Workbook wb = loadWorkBook(fileName);
+        Sheet sheet = getSheet(wb);
+        Table table = new Table();
+        int maxColumnIndex = 0;
+        for (Row row : sheet) {
+            if (row.getRowNum() > table.getHeight()) {
+                // итератор пропустил одну или несколько строк.
+                // значит нашлась как минимум одна пустая строка - можно дальше не загружать
+                break;
+            }
+            org.example.table.Row tableRow = table.addRow();
+            for (Cell cell : row) {
+                int columnIndex = cell.getColumnIndex();
+                org.example.table.Cell tableCell = getTableCell(cell);
+                tableRow.setCell(columnIndex, tableCell);
+                if (tableCell.getType() != org.example.table.Cell.CellType.EMPTY) {
+                    // сохраним все непустые столбцы для поиска полностью пустых столбцов
+                    columnsWithData.add(columnIndex);
+                    maxColumnIndex = Math.max(maxColumnIndex, columnIndex);
+                }
+            }
+        }
+        wb.close();
+        int emptyColumnIndex = findEmptyColumn(columnsWithData, maxColumnIndex);
+        if (emptyColumnIndex != -1) {
+            deleteColumnsAfterEmpty(table, emptyColumnIndex);
+        }
+        return table;
+    }
+
+    private void deleteColumnsAfterEmpty(Table table, int emptyColumnIndex) {
+        int tableHeight = table.getHeight();
+        for (int i = 0; i < tableHeight; i++) {
+            table.getRow(i).narrow(emptyColumnIndex);
+        }
+    }
+
+    private int findEmptyColumn(Set<Integer> columnsWithData, int tableWidth) {
+        //метод ищет пустые столбцы для удаления всех, что справа от пустого.
+        for (int i = 0; i < tableWidth; i++) {
+            if (!columnsWithData.contains(i)) {
+                return i; // не было непустых ячеек с таким индексом
+            }
+        }
+        return -1; // нет пустых столбцов
+    }
+
+    private org.example.table.Cell getTableCell(Cell excelCell) {
+        org.example.table.Cell tableCell;
+        switch (excelCell.getCellType()) {
+            case STRING -> tableCell = new org.example.table.Cell(excelCell.getStringCellValue());
+            case NUMERIC -> tableCell = new org.example.table.Cell(excelCell.getNumericCellValue());
+            case FORMULA -> tableCell = new org.example.table.Cell(excelCell.getCellFormula());
+            case BLANK -> tableCell = new org.example.table.Cell();
+            case BOOLEAN -> tableCell = new org.example.table.Cell(String.valueOf(excelCell.getBooleanCellValue()));
+            default -> throw new IllegalArgumentException(
+                    String.format(CELL_TYPE_ERROR, excelCell.getRowIndex(),
+                            excelCell.getColumnIndex(), excelCell.getCellType().name())
+            );
+        }
+        return tableCell;
+    }
+
+    private Sheet getSheet(Workbook wb) {
         Sheet sheet;
         if (sheetName != null) {
             sheet = wb.getSheet(sheetName);
@@ -35,30 +98,7 @@ public class ExcelTableLoader implements TableLoader {
             //по умолчанию загружается самая первая таблица
             sheet = wb.getSheetAt(0);
         }
-        Table table = new Table();
-        for (Row row : sheet) {
-            if (row.getRowNum() > table.getHeight()) {
-                // итератор пропустил одну или несколько строк.
-                // значит нашлась как минимум одна пустая строка - можно дальше не загружать
-                break;
-            }
-            org.example.table.Row tableRow = table.addRow();
-            for (Cell cell : row) {
-                org.example.table.Cell tableCell;
-                switch (cell.getCellType()) {
-                    case STRING -> tableCell = new org.example.table.Cell(cell.getStringCellValue());
-                    case NUMERIC -> tableCell = new org.example.table.Cell(cell.getNumericCellValue());
-                    case FORMULA -> tableCell = new org.example.table.Cell(cell.getCellFormula());
-                    case BLANK -> tableCell = new org.example.table.Cell();
-                    case BOOLEAN -> tableCell = new org.example.table.Cell(String.valueOf(cell.getBooleanCellValue()));
-                    default ->
-                            throw new IllegalArgumentException(String.format(CELL_TYPE_ERROR, cell.getRowIndex(), cell.getColumnIndex(), cell.getCellType().name()));
-                }
-                tableRow.setCell(cell.getColumnIndex(), tableCell);
-            }
-        }
-        wb.close();
-        return table;
+        return sheet;
     }
 
     public void setSheetName(String sheetName) {
