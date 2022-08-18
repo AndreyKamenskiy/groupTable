@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-//Загружает таблицу из файла excel. Размеры таблицы до первой пустой строки и до первого пустого столбца
+// warning: loads to first empty row!!
 public class ExcelTableLoader implements TableLoader {
+
+    //todo: add tests
 
     private static final String CELL_TYPE_ERROR = "Cannot read cell(%d,%d) of %s format.";
     private static final String ILLEGAL_SHEET_NAME_ERROR = "Sheet %s is absent";
@@ -21,20 +23,15 @@ public class ExcelTableLoader implements TableLoader {
 
     @Override
     public Table loadTable(String fileName) throws IOException {
-        //нужен для поиска пустого столбца
         Set<Integer> columnsWithData = new HashSet<>();
-
-        //загрузим всю таблицу
         Workbook wb = loadWorkBook(fileName);
-        //выберем лист, переданный нам по названию или самый левый
         Sheet sheet = getSheet(wb);
         Table table = new Table();
         int maxColumnIndex = 0;
         for (Row row : sheet) {
             if (row.getRowNum() > table.getHeight()) {
-                // Итератор пропустил одну или несколько строк.
+                // итератор пропустил одну или несколько строк.
                 // значит нашлась как минимум одна пустая строка - можно дальше не загружать
-                //этот метод срабатывает не всегда - иногда грузит пустые строки
                 break;
             }
             org.example.table.Row tableRow = new org.example.table.Row();
@@ -50,16 +47,13 @@ public class ExcelTableLoader implements TableLoader {
                     rowHasData = true;
                 }
             }
-            if (!rowHasData) {
-                // нашли пустую строку, дальше можно не читать
-                break;
+            if (rowHasData) {
+                table.setRow(table.getHeight(), tableRow);
             }
-            table.setRow(table.getHeight(), tableRow);
         }
         wb.close();
         int emptyColumnIndex = findEmptyColumn(columnsWithData, maxColumnIndex);
         if (emptyColumnIndex != -1) {
-            //сузим таблицу до первого пустого столбца
             deleteColumnsAfterEmpty(table, emptyColumnIndex);
         }
         return table;
@@ -94,7 +88,7 @@ public class ExcelTableLoader implements TableLoader {
                     form = form.replace('.', ',');
                 } catch (NumberFormatException ignored) {
                 }
-                //особенность apache.poi - она формулу "=1,5" загружает как строку "1,5"
+                //особенность appache.poi - она формулу "=1,5" загружает как строку "1,5"
                 // поэтому проверяем, если формула может быть преобразована в число, то меняем точку на запятую
                 tableCell = new org.example.table.Cell(form);
             }
@@ -130,7 +124,6 @@ public class ExcelTableLoader implements TableLoader {
     private Workbook loadWorkBook(String fileName) throws IOException {
         FileInputStream inputStream = new FileInputStream(fileName);
         Workbook wb = null;
-        // в зависимости от расширения - выберем нужный класс загрузки.
         if (fileName.matches(".+[.]xlsx")) {
             wb = new XSSFWorkbook(inputStream);
         } else if (fileName.matches(".+[.]xls")) {
