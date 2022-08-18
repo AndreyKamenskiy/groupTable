@@ -159,7 +159,6 @@ public class Main {
     }
 
     private static void showHelp() {
-        //todo: add description
         String helpMessage = """
                 A utility for grouping a table by criteria columns and performing calculations in measure columns.
                 Available commands:

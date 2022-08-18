@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-//загружает таблицу из файла excel. размеры таблицы до первой пустой строки и до первого пустого столбца
+//Загружает таблицу из файла excel. Размеры таблицы до первой пустой строки и до первого пустого столбца
 public class ExcelTableLoader implements TableLoader {
 
     private static final String CELL_TYPE_ERROR = "Cannot read cell(%d,%d) of %s format.";
@@ -26,14 +26,15 @@ public class ExcelTableLoader implements TableLoader {
 
         //загрузим всю таблицу
         Workbook wb = loadWorkBook(fileName);
-        //выберем лист. переданный нам по названию или самый левый
+        //выберем лист, переданный нам по названию или самый левый
         Sheet sheet = getSheet(wb);
         Table table = new Table();
         int maxColumnIndex = 0;
         for (Row row : sheet) {
             if (row.getRowNum() > table.getHeight()) {
-                // итератор пропустил одну или несколько строк.
+                // Итератор пропустил одну или несколько строк.
                 // значит нашлась как минимум одна пустая строка - можно дальше не загружать
+                //этот метод срабатывает не всегда - иногда грузит пустые строки
                 break;
             }
             org.example.table.Row tableRow = new org.example.table.Row();
