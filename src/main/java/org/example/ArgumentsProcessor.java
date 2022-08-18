@@ -68,6 +68,7 @@ public class ArgumentsProcessor {
         hasCommandList = true;
     }
 
+    //true если есть искомая команда обязательно со значением
     public boolean hasCommandWithValue(String command) {
         String lowCaseCommand = command.toLowerCase();
         return keys.containsKey(lowCaseCommand) && keys.get(lowCaseCommand) != null;

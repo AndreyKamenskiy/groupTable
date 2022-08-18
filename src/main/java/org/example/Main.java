@@ -10,9 +10,6 @@ import java.util.Map;
 
 public class Main {
 
-    //todo: add tests for null arguments passed to every method;
-
-
     private static final String HELP_COMMAND = "-help";
     private static final String PRINT_STAT_COMMAND = "-printStats";
     private static final String INPUT_FILE_COMMAND = "-inputFile";
@@ -89,6 +86,7 @@ public class Main {
         long time = System.nanoTime();
         timePoints.put(pointName, time);
     }
+
     private static void addStatPoint(String pointName, String value) {
         statPoints.add(new StatPoint(pointName, value));
     }
@@ -163,7 +161,7 @@ public class Main {
     private static void showHelp() {
         //todo: add description
         String helpMessage = """
-                description coming soon...
+                A utility for grouping a table by criteria columns and performing calculations in measure columns.
                 Available commands:
                     %1$s : help.
                     %2$s : command sets input file name.

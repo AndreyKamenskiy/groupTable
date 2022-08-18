@@ -11,6 +11,7 @@ public class Cell {
         STRING,
         EMPTY
     }
+
     private CellType type;
 
     private double doubleValue;

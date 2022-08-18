@@ -1,7 +1,5 @@
 package org.example.table;
 
-import org.example.table.Cell;
-
 import java.util.ArrayList;
 import java.util.List;
 

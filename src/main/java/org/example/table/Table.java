@@ -27,7 +27,7 @@ public class Table {
         }
     }
 
-    public Row getRow(int rowIndex)  throws IndexOutOfBoundsException {
+    public Row getRow(int rowIndex) throws IndexOutOfBoundsException {
         if (rowIndex >= table.size() || table.get(rowIndex) == null) {
             //есть две ситуации, когда строка может быть равна null:
             // 1. когда индекс строки больше их текукщего количества
@@ -40,11 +40,11 @@ public class Table {
         return table.get(rowIndex);
     }
 
-    public Cell getCell(int rowIndex, int columnIndex)  throws IndexOutOfBoundsException {
+    public Cell getCell(int rowIndex, int columnIndex) throws IndexOutOfBoundsException {
         return getRow(rowIndex).getCell(columnIndex);
     }
 
-    public void setCell(int rowIndex, int columnIndex, Cell cell)  throws IndexOutOfBoundsException {
+    public void setCell(int rowIndex, int columnIndex, Cell cell) throws IndexOutOfBoundsException {
         getRow(rowIndex).setCell(columnIndex, cell);
     }
 
