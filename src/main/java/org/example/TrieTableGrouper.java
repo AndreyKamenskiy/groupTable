@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 
 public class TrieTableGrouper implements TableGrouper {
 
+    //типы столбцов, указываются в первой строке.
     enum ColumnType {
         CRITERIA,
         UNUSED,
@@ -18,7 +19,11 @@ public class TrieTableGrouper implements TableGrouper {
         CONCAT
     }
 
-    class TrieNode {
+    //класс для реализации аналога префиксного дерева (Trie или бор). в отличие от классического значение хранится
+    // только в листьях. промежуточные значения нам не нужны. Так же в отличии от обычного в нашем бору будет
+    // фиксированная глубина соответствующая количеству критериев. лист дерева - это строка итоговой таблицы с
+    // уникальным набором значений критериев и столбцами мерами.
+    private class TrieNode {
         private Map<Cell, TrieNode> children;
 
         private Row leaf = null;
@@ -53,7 +58,6 @@ public class TrieTableGrouper implements TableGrouper {
                 //так как строка может быть уже всей таблицы переберем весь массив параметры
                 // он по ширине равен таблице
                 for (int column = 0; column < parameters.length; ++column) {
-                    // todo: move switch to map like leafEmptyCellType
                     switch (parameters[column]) {
                         // case UNUSED -> nothing to do
                         case CRITERIA -> leaf.addCell(row.getCell(column));
@@ -124,12 +128,11 @@ public class TrieTableGrouper implements TableGrouper {
 
     //если в итоговой строке столбец - мера оказался пустым, то этот словарь покажет в какой тип ее конвертировать.
     private static final Map<ColumnType, Cell.CellType> leafEmptyCellType = Map.of(
-        ColumnType.SUM, Cell.CellType.DOUBLE,
+            ColumnType.SUM, Cell.CellType.DOUBLE,
             ColumnType.MIN, Cell.CellType.DOUBLE,
             ColumnType.MAX, Cell.CellType.DOUBLE,
             ColumnType.CONCAT, Cell.CellType.EMPTY
     );
-
 
     private static final BiFunction<Cell, Cell, Cell> sum = (lhs, rhs) -> {
         if (lhs.isEmpty()) return rhs;
@@ -197,7 +200,7 @@ public class TrieTableGrouper implements TableGrouper {
         return lhs;
     };
 
-
+    //словарь позволяет выбирать обработчик для меры. Нужен для удобства добавления новых видов мер.
     private static final Map<ColumnType, BiFunction<Cell, Cell, Cell>> typeToProcessor = Map.of(
             ColumnType.SUM, sum,
             ColumnType.MIN, min,
@@ -207,8 +210,11 @@ public class TrieTableGrouper implements TableGrouper {
 
     private Table inTable;
 
+    //хранит параметы первой строки
     private ColumnType[] parameters;
 
+    //хранит номера колонок с критериями. нужен, чтобы не перебирать все ячейки строки при поиске совпадающего
+    // набора критериев, а сразу итерировать по столбцам-критериям
     private int[] criteriaColumns;
 
     private int criteriaNum;
@@ -216,11 +222,11 @@ public class TrieTableGrouper implements TableGrouper {
     @Override
     public Table groupTable(Table inTable) throws IllegalArgumentException {
         this.inTable = inTable;
-        //parse 0 row.
+        //разбираем первую строку с параметрами
         parseParameters();
-        //make trie
+        //строим бор.
         TrieNode root = buildTrie();
-        //convert trie to the table
+        //обходим бор в ширину, собираем все листья в итоговую таблицу
         return trieToTable(root);
     }
 
@@ -228,6 +234,7 @@ public class TrieTableGrouper implements TableGrouper {
         Table table = new Table();
         Queue<TrieNode> queue = new ArrayDeque<>();
         queue.add(root);
+
         while (!queue.isEmpty()) {
             TrieNode node = queue.poll();
             if (node.hasLeaf()) {
@@ -242,10 +249,12 @@ public class TrieTableGrouper implements TableGrouper {
     }
 
     private void checkEmptyLeafCells(Row leaf) {
-
+        //метод нужен для замены пустых ячеек в итоговой таблице на соответствующие типы.
+        // для sum, min, max невозможны пустые ячейки в итоге. Заменим их на соответствующие типы.
         for (int column = 0, leafColumn = 0; column < parameters.length; ++column) {
             ColumnType type = parameters[column];
             if (type == ColumnType.UNUSED) {
+                //для unused столбцов не увеличиваем указатель leafColumn,т.к. эти столбцы отсутствуют в итоговой
                 continue;
             }
             if (type == ColumnType.CRITERIA || leaf.getCell(leafColumn).getType() != Cell.CellType.EMPTY) {
@@ -263,6 +272,7 @@ public class TrieTableGrouper implements TableGrouper {
 
     private void parseParameters() throws IllegalArgumentException {
         if (inTable.getHeight() < 2) {
+            //минимально должны быть строка с параметрами и строка с данными
             throw new IllegalArgumentException(EMPTY_TABLE_ERROR);
         }
         Row firstRow = inTable.getRow(0);
@@ -302,10 +312,11 @@ public class TrieTableGrouper implements TableGrouper {
 
     private TrieNode buildTrie() {
         TrieNode root = new TrieNode();
-        for (int rowIndex = 1; rowIndex < inTable.getHeight(); rowIndex++) {
+        for (int rowIndex = 1; rowIndex < inTable.getHeight(); ++rowIndex) {
             Row row = inTable.getRow(rowIndex);
             TrieNode currentNode = root;
-            //переберем параметры, чтобы добраться до листа
+            //переберем критерии, чтобы добраться до листа
+            //глубина бора у нас равна количеству критериев. Лист-строка есть только у последнего узла в ветке.
             for (int criteriaIndex : criteriaColumns) {
                 currentNode = currentNode.getOrCreateChild(row.getCell(criteriaIndex));
             }

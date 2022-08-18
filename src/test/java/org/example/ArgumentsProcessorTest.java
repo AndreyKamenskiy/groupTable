@@ -65,7 +65,7 @@ class ArgumentsProcessorTest {
             " ,ArgumentsProcessor error: ' ' is illegal command prefix."
     }, ignoreLeadingAndTrailingWhitespace = false)
     void illegalPrefixTest(String prefix, String error) {
-        final String[] args = {"asdf"};
+        final String[] args = {"test"};
         ArgumentsProcessor processor = new ArgumentsProcessor(args);
         IllegalArgumentException ex = assertThrowsExactly(IllegalArgumentException.class, () -> processor.setCommandPrefix(prefix));
         assertEquals(String.format(error), ex.getMessage());

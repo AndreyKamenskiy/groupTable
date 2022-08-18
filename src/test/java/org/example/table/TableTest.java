@@ -26,7 +26,7 @@ class TableTest {
         assert t.getHeight() == 5;
         assert t.getWidth() == 16;
         Row row2 = new Row();
-        row2.setCell(5, new Cell("asdf"));
+        row2.setCell(5, new Cell("test"));
         t.setRow(4, row2);
         assert t.getHeight() == 5;
         assert t.getWidth() == 6;
@@ -79,7 +79,8 @@ class TableTest {
         assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().setRow(-1, new Row()));
         assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getRow(-100));
         assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(-100, 0));
-        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(100, -50));        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(-100, 0));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(100, -50));
+        assertThrowsExactly(IndexOutOfBoundsException.class, () -> new Table().getCell(-100, 0));
         assertThrowsExactly(IndexOutOfBoundsException.class, () ->
                 new Table().setCell(100, -50, new Cell(52)));
         assertThrowsExactly(IndexOutOfBoundsException.class, () ->

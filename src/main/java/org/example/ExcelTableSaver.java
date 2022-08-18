@@ -1,7 +1,6 @@
 package org.example;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,7 +12,7 @@ import java.io.*;
 public class ExcelTableSaver implements TableSaver {
 
     //todo: add tests
-    private Workbook selectWBClass(String fileName){
+    private Workbook selectWBClass(String fileName) {
         Workbook wb = null;
         if (fileName.matches(".+[.]xlsx")) {
             wb = new XSSFWorkbook();

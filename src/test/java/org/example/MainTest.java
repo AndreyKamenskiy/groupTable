@@ -27,6 +27,7 @@ class MainTest {
             "src/test/testResources/simpleTests/criteria2.xlsx",
             "src/test/testResources/simpleTests/emptyLeafs.xlsx",
             "src/test/testResources/simpleTests/transform1.xlsx",
+            "src/test/testResources/simpleTests/simple2.xlsx",
             "src/test/testResources/simpleTests/10000-100-5-95-32row.xlsx",
 
     }, ignoreLeadingAndTrailingWhitespace = false)
