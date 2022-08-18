@@ -14,7 +14,6 @@ import java.util.Set;
 // warning: loads to first empty row!!
 public class ExcelTableLoader implements TableLoader {
 
-    //todo: add tests
 
     private static final String CELL_TYPE_ERROR = "Cannot read cell(%d,%d) of %s format.";
     private static final String ILLEGAL_SHEET_NAME_ERROR = "Sheet %s is absent";

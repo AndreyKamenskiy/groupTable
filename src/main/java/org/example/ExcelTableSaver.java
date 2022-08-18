@@ -12,7 +12,7 @@ import java.io.*;
 
 public class ExcelTableSaver implements TableSaver {
 
-    //todo: add tests
+
     private Workbook selectWBClass(String fileName){
         Workbook wb = null;
         if (fileName.matches(".+[.]xlsx")) {
